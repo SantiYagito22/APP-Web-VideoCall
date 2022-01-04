@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport">
+        <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+        <title> VideoCall Website</title>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var peer= new Peer();
+            var peerID=null;
+            peer.on('open', function(id) {
+                document.getElementById('peerID').innerHTML="My peer ID es"+id;
+                peerID=id;
+            })
+
+            function callPhone() {
+                var remotePeerId=document.getElementById('peerRemote').value;
+                const currentVideo= document.getElementById('myVideo');
+                const remoteVideo= document.getElementById('remoteVideo');
+
+                var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                
+                getUserMedia({audio:true, video:true}, stream => {
+                    currentVideo.srcObject= stream;
+                    var call = peer.call(remotePeerId, stream);
+                    call.on('stream', function(remoteStream){
+                        console.log("ENTRO");
+                        remoteVideo.srcObject = remoteStream;
+                        console.log(remoteVideo.srcObject);
+                    });
+                    call.on('error', function(err) {
+                        console.log("Error "+err);
+                    })
+                }, function(err) {
+                    console.log('Failed to get local stream', err)
+                });
+                
+
+            }
+
+
+        </script>
+        <h3 id="peerID"></h3>
+        <input type="text" id="peerRemote" placeholder="Introduzca el numero al que llamar" style="width: 300px;">
+        <input type="button" value="Llamar" onclick="callPhone()"/>
+        <video id="myVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </body>
+</html>
