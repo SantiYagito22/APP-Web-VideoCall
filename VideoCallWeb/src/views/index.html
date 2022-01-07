@@ -26,7 +26,6 @@
                     currentVideo.srcObject= stream;
                     var call = peer.call(remotePeerId, stream);
                     call.on('stream', function(remoteStream){
-                        console.log("ENTRO");
                         remoteVideo.srcObject = remoteStream;
                         console.log(remoteVideo.srcObject);
                     });
