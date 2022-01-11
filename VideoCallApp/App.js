@@ -1,64 +1,28 @@
 import 'expo-dev-client';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { RTCView, mediaDevices } from 'react-native-webrtc';
-import Peer from 'react-native-peerjs';
-import { useEffect, useState } from 'react';
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Home from './src/Home';
+import Call from './src/Call';
 
-export default function App() {
 
-  const [localStream, setlocalStream] = useState(null);
-  const [remoteStream, setremoteStream] = useState(null);
-  useEffect(() => {
 
-    var localPeer= new Peer();
-
-    localPeer.on('open', function(id){
-      console.log('My local peer id is '+id);
-    }); 
-
-    localPeer.on('call', function(call){
-
-      mediaDevices.getUserMedia({audio:true, video:true}).then(function(stream){
-        setlocalStream(stream);
-        call.answer(stream);
-
-        call.on('stream', function(remoteStream){
-          setremoteStream(remoteStream);
-        })
-      })
-      
-    });
-
-    
-
-  }, []);
-
-  return (
-    <View style={styles.container}>
-      {localStream && 
-      <RTCView
-       streamURL= {localStream.toURL()}
-       style={styles.stream}
-      />
-      }
-      {remoteStream && 
-      <RTCView
-       streamURL= {remoteStream.toURL()}
-       style={styles.stream}
-      />
-      }
-      <StatusBar style="auto" />
-    </View>
+export default function App (){
+  const Stack = createNativeStackNavigator();
+  return(
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName='Home'>
+        <Stack.Screen
+          name='Home'
+          component = {Home}
+          options= {{title:'Home'}}
+        />
+        <Stack.Screen
+          name='Call'
+          component = {Call}
+          options= {{title:'Call'}}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    ...StyleSheet.absoluteFill
-  },
-  stream: {
-    flex:1
-  }
-});
+};

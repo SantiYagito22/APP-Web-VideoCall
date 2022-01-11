@@ -5,9 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "plugins": [
-      "@config-plugins/react-native-webrtc"
-    ],
+    "plugins": ["@config-plugins/react-native-webrtc","@config-plugins/react-native-callkeep"],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
