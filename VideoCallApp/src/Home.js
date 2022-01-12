@@ -3,7 +3,7 @@ import { useEffect, useState, useReducer } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
 import Peer from 'react-native-peerjs';
-import { mediaDevices } from 'react-native-webrtc';
+import data from './data/data'
 
 const styles = StyleSheet.create({
   container: {
@@ -15,11 +15,10 @@ const styles = StyleSheet.create({
 });
 
 const Home = ({ navigation }) => {
-  const [localStream, setlocalStream] = useState(null);
-  const [remoteStream, setremoteStream] = useState(null);
+
   const [callId, setCallId] = useState('');
   const [isRinging, setisRinging] = useState(false);
-  const [acceptCall, setAcceptCall] = useState(false);
+
 
   RNCallKeep.setup({
     android: {
@@ -33,6 +32,7 @@ const Home = ({ navigation }) => {
 
   const endCall = ({ callID }) => {
     RNCallKeep.endCall(callId);
+    //data.call.close();
   };
 
   const displayCallAndroid = () => {
@@ -49,8 +49,8 @@ const Home = ({ navigation }) => {
 
   const answerCall = ({ callID }) => {
     setisRinging(false);
-    setAcceptCall(true);
     RNCallKeep.endCall(callId);
+    navigation.navigate('Call');
   };
 
  
@@ -59,8 +59,8 @@ const Home = ({ navigation }) => {
     RNCallKeep.addEventListener('answerCall', answerCall);
 
     return () => {
-      RNCallKeep.removeEventListener('endCall', endCall);
-      RNCallKeep.removeEventListener('answerCall',answerCall);
+    RNCallKeep.removeEventListener('endCall', endCall);
+    RNCallKeep.removeEventListener('answerCall',answerCall);
     }
   }, []);
 
@@ -73,26 +73,12 @@ const Home = ({ navigation }) => {
     });
 
     localPeer.on('call', function (call) {
-      console.log('ENTRO');
+      data.call=call;
       displayCallAndroid();
-      if(acceptCall)
-      {
-        console.log('Entro despues de aceptar');
-        mediaDevices
-        .getUserMedia({ audio: true, video: true })
-        .then(function (stream) {
-          setlocalStream(stream);
-          call.answer(stream);
-
-          call.on('stream', function (remoteStream) {
-            setremoteStream(remoteStream);
-          });
-        });
-        navigation.navigate('Call', {locStream: localStream, remStream: remoteStream});
-      }
-      console.log('Paso');
     });
   }, []);
+
+  
 
   return (
     <View style={styles.container}>

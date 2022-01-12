@@ -25,19 +25,23 @@
                 getUserMedia({audio:true, video:true}, stream => {
                     currentVideo.srcObject= stream;
                     var call = peer.call(remotePeerId, stream);
+                    call.on('close', function(){
+                        console.log('llamada rechazada');
+                    });
                     call.on('stream', function(remoteStream){
                         remoteVideo.srcObject = remoteStream;
-                        console.log(remoteVideo.srcObject);
                     });
                     call.on('error', function(err) {
                         console.log("Error "+err);
-                    })
+                    });
                 }, function(err) {
                     console.log('Failed to get local stream', err)
                 });
                 
 
             }
+
+            
 
 
         </script>
