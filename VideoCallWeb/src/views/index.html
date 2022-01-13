@@ -17,16 +17,22 @@
 
             function callPhone() {
                 var remotePeerId=document.getElementById('peerRemote').value;
+                var conn = peer.connect(remotePeerId);
+
                 const currentVideo= document.getElementById('myVideo');
                 const remoteVideo= document.getElementById('remoteVideo');
-
+                document.getElementById('rejCall').style.visibility='hidden';
+                
                 var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
                 
                 getUserMedia({audio:true, video:true}, stream => {
                     currentVideo.srcObject= stream;
                     var call = peer.call(remotePeerId, stream);
-                    call.on('close', function(){
-                        console.log('llamada rechazada');
+                   
+                    conn.on('close',function(){
+                        currentVideo.srcObject=null;
+                        remoteVideo.srcObject=null;
+                        document.getElementById('rejCall').style.visibility='visible';
                     });
                     call.on('stream', function(remoteStream){
                         remoteVideo.srcObject = remoteStream;
@@ -42,10 +48,11 @@
             }
 
             
-
+            
 
         </script>
         <h3 id="peerID"></h3>
+        <h2 id="rejCall" style="color: red; visibility: hidden;">LLAMADA RECHAZADA</h2>
         <input type="text" id="peerRemote" placeholder="Introduzca el numero al que llamar" style="width: 300px;">
         <input type="button" value="Llamar" onclick="callPhone()"/>
         <video id="myVideo" autoplay muted></video>

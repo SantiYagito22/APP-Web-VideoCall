@@ -4,11 +4,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { RTCView, mediaDevices} from 'react-native-webrtc';
 import { useEffect, useState, useReducer } from 'react';
 import data from './data/data';
+import invokeApp from 'react-native-invoke-app';
 
 
 
 export default function Call() {
-
+  
+  invokeApp();
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
 

@@ -1,6 +1,7 @@
 
 let data ={
-    call:null
+    call:null,
+    dataConnection:null
 }
 
 export default data;

@@ -1,9 +1,10 @@
 import 'expo-dev-client';
-import { useEffect, useState, useReducer } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState, useReducer, useRef } from 'react';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
 import Peer from 'react-native-peerjs';
-import data from './data/data'
+import data from './data/data';
+import invokeApp from 'react-native-invoke-app';
 
 const styles = StyleSheet.create({
   container: {
@@ -16,9 +17,12 @@ const styles = StyleSheet.create({
 
 const Home = ({ navigation }) => {
 
+  invokeApp();
+
   const [callId, setCallId] = useState('');
   const [isRinging, setisRinging] = useState(false);
-
+  const acceptedCall= useRef(false);
+  const [muestraUI, setUI]=useState(false);
 
   RNCallKeep.setup({
     android: {
@@ -26,41 +30,41 @@ const Home = ({ navigation }) => {
       alertDescription: 'This application needs to access your phone accounts',
       cancelButton: 'Cancel',
       okButton: 'ok',
+      selfManaged: true,
     }
   });
 
 
-  const endCall = ({ callID }) => {
-    RNCallKeep.endCall(callId);
-    //data.call.close();
+  const rejectCall = ({ callID }) => {
+    setUI(false);
+    data.dataConnection.close();
+
   };
 
   const displayCallAndroid = () => {
     setisRinging(true);
-    RNCallKeep.displayIncomingCall(callId, 'Santi', 'Santi', 'generic', true);
-
-    setTimeout(() => {
-      if (isRinging) {
-        setisRinging(false);
-        RNCallKeep.reportEndCallWithUUID(callId, 6);
-      }
-    }, 15000);
+    RNCallKeep.displayIncomingCall(callId, 'Santi2', 'Santi2', 'generic', true);
   };
 
   const answerCall = ({ callID }) => {
+    setUI(false);
+    acceptedCall.current=true;
     setisRinging(false);
-    RNCallKeep.endCall(callId);
     navigation.navigate('Call');
   };
 
+  const show = ({handle,callID, name }) => {
+    setUI(true);
+    RNCallKeep.endCall(callId);
+  }
+
  
   useEffect(() => {
-    RNCallKeep.addEventListener('endCall', endCall);
-    RNCallKeep.addEventListener('answerCall', answerCall);
+   
+    RNCallKeep.addEventListener('showIncomingCallUi', show );
 
     return () => {
-    RNCallKeep.removeEventListener('endCall', endCall);
-    RNCallKeep.removeEventListener('answerCall',answerCall);
+    RNCallKeep.removeEventListener('showIncomingCallUi', show);
     }
   }, []);
 
@@ -70,6 +74,10 @@ const Home = ({ navigation }) => {
     localPeer.on('open', function (id) {
       console.log('My local peer id is ' + id);
       setCallId(id);
+    });
+
+    localPeer.on('connection',function(conn){
+      data.dataConnection=conn;
     });
 
     localPeer.on('call', function (call) {
@@ -82,8 +90,18 @@ const Home = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+    {!muestraUI && 
       <Text>PAGINA DE INICIO</Text>
+    }
+    {muestraUI &&
+    <View style={{backgroundColor:'red', flex:1}}>
+     <Text>Te esta llamando </Text>
+     <Button title='aceptar' onPress={answerCall}/>
+     <Button title='rechazar' onPress={rejectCall}/>
     </View>
+    }
+    </View>
+    
   );
 };
 
